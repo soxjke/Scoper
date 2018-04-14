@@ -6,6 +6,7 @@ target 'Scoper_Example' do
   target 'Scoper_Tests' do
     inherit! :search_paths
 
+    pod 'Scoper', :path => '../'
     pod 'Quick', '~> 1.2.0'
     pod 'Nimble', '~> 7.0.2'
   end

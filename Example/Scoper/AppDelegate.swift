@@ -7,15 +7,31 @@
 //
 
 import UIKit
+import Scoper
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Override point for customization after application launch.'
+        let scope = DefaultScope.Builder()
+            .testCase(
+                TestCase.Builder()
+                    .worker { _, _ in
+                        
+                    }
+                    .async()
+                    .build()
+            )
+            .build()
+        TestRunner.shared.schedule(scope) { _ in
+            
+        }
+        TestRunner.shared.schedule(scope) { _ in
+            
+        }
         return true
     }
 
