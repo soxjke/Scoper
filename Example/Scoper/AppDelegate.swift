@@ -19,16 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let scope = DefaultScope.Builder()
             .testCase(
                 TestCase.Builder()
-                    .worker { _, _ in
-                        
+                    .worker { context, completion in
+                        Thread.sleep(forTimeInterval: 5)
+                        completion()
                     }
                     .async()
                     .build()
             )
+            .options(.complete)
             .build()
-        TestRunner.shared.schedule(scope) { _ in
-            
-        }
         TestRunner.shared.schedule(scope) { _ in
             
         }

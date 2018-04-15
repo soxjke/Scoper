@@ -11,9 +11,10 @@ public struct TestOptions: OptionSet {
     
     public static let runTime = TestOptions(rawValue: 1 << 0)
     public static let cpuTime = TestOptions(rawValue: 1 << 1)
-    public static let memoryFootprint = TestOptions(rawValue: 1 << 2)
-    public static let diskUsage = TestOptions(rawValue: 1 << 3)
-    public static let frameRate = TestOptions(rawValue: 1 << 4)
+    public static let hostCpuTime = TestOptions(rawValue: 1 << 2)
+    public static let memoryFootprint = TestOptions(rawValue: 1 << 3)
+    public static let diskUsage = TestOptions(rawValue: 1 << 4)
+    public static let frameRate = TestOptions(rawValue: 1 << 5)
     
     public static let logResults = TestOptions(rawValue: 1 << 16)
     public static let logProgress = TestOptions(rawValue: 1 << 17)

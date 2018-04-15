@@ -23,7 +23,7 @@ public class TestCase<ContextKeyType: CustomStringConvertible> {
         private(set) var name: String = UUID().uuidString
         fileprivate mutating func set(name: String)
             { self.name = name }
-        private(set) var timeout: TimeInterval = 10
+        private(set) var timeout: TimeInterval = 60
         fileprivate mutating func set(timeout: TimeInterval)
             { self.timeout = timeout }
         private(set) var entryPointQueue: DispatchQueue = DispatchQueue.main

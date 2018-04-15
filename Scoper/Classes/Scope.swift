@@ -121,6 +121,9 @@ extension Scope {
                         self.reportTimeout(testCase: testCase, run: run, options: self.variables.options)
                     }
                 }
+                print(startResults)
+                print(endResults)
+                print("complete")
             }
             self.variables.after?(self.context)
         }

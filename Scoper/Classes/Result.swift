@@ -100,6 +100,7 @@ public struct FrameRate {
 public struct Result {
     public let runTime: RunTime?
     public let cpuTime: CPUTime?
+    public let hostCpuTime: CPUTime?
     public let memoryFootping: MemoryFootprint?
     public let diskUsage: DiskUsage?
     public let frameRate: FrameRate?
@@ -110,6 +111,9 @@ class RawResults {
     var cpuTimeUser: [Double] = []
     var cpuTimeSystem: [Double] = []
     var cpuTimeIdle: [Double] = []
+    var hostCpuTimeUser: [Double] = []
+    var hostCpuTimeSystem: [Double] = []
+    var hostCpuTimeIdle: [Double] = []
     var memoryUsage: [UInt64] = []
     var peakMemoryUsage: [[UInt64]] = []
     var diskReadCount: [UInt64] = []
@@ -123,6 +127,9 @@ class RawResults {
         cpuTimeUser = .init(repeating: 0, count: numberOfRuns)
         cpuTimeSystem = .init(repeating: 0, count: numberOfRuns)
         cpuTimeIdle = .init(repeating: 0, count: numberOfRuns)
+        hostCpuTimeUser = .init(repeating: 0, count: numberOfRuns)
+        hostCpuTimeSystem = .init(repeating: 0, count: numberOfRuns)
+        hostCpuTimeIdle = .init(repeating: 0, count: numberOfRuns)
         memoryUsage = .init(repeating: 0, count: numberOfRuns)
         peakMemoryUsage = .init(repeating: [], count: numberOfRuns)
         diskReadCount = .init(repeating: 0, count: numberOfRuns)
