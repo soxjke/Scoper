@@ -8,7 +8,7 @@
 import Foundation
 
 public final class TestRunner {
-    public typealias Completion = (Result) -> Void
+    public typealias Completion = (ScopeResult) -> Void
     public static let shared = TestRunner()
     
     private var lock = NSLock()

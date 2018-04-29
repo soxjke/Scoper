@@ -1,0 +1,22 @@
+PODS:
+  - Nimble (7.0.3)
+  - Quick (1.2.0)
+  - Scoper (0.1.0)
+
+DEPENDENCIES:
+  - Nimble (~> 7.0.2)
+  - Quick (~> 1.2.0)
+  - Scoper (from `../`)
+
+EXTERNAL SOURCES:
+  Scoper:
+    :path: ../
+
+SPEC CHECKSUMS:
+  Nimble: 7f5a9c447a33002645a071bddafbfb24ea70e0ac
+  Quick: 58d203b1c5e27fff7229c4c1ae445ad7069a7a08
+  Scoper: b8383adc5d31174f418e20adff7183c9e378da62
+
+PODFILE CHECKSUM: 73c896d5f450920db49a766e3f1e27b50eec3476
+
+COCOAPODS: 1.4.0

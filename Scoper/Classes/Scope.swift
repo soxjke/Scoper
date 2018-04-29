@@ -77,6 +77,7 @@ public class Scope<ContextKeyType: CustomStringConvertible>: ScopeProtocol {
     // MARK - Variables definitions
     var variables: Variables
     var capture: CaptureProtocol = Capture()
+    lazy var scopeResult: ScopeResult = ScopeResult(name: self.variables.name)
     let context = Context<ContextKeyType>()
     fileprivate let dispatchQueue = DispatchQueue(label: "Scoper.Scope",
                                                   qos: .utility)
@@ -121,16 +122,15 @@ extension Scope {
                         self.reportTimeout(testCase: testCase, run: run, options: self.variables.options)
                     }
                 }
-                print(startResults)
-                print(endResults)
-                print("complete")
+                let testResult = Result(startMeasurements: startResults, endMeasurements: endResults)
+                self.scopeResult.append(testResult: testResult, for: testCase.variables.name)
             }
             self.variables.after?(self.context)
+            completion(self.scopeResult)
         }
     }
     
     private func reportTimeout(testCase: TestCase<ContextKeyType>, run: Int, options: TestOptions) {
-        
     }
 }
 

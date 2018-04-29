@@ -20,6 +20,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             .testCase(
                 TestCase.Builder()
                     .worker { context, completion in
+                        let memory = UnsafeMutablePointer<UInt64>.allocate(capacity: 1024 * 1024)
+                        memory.initialize(to: 42, count: 1024 * 1024)
+                        Thread.sleep(forTimeInterval: 5)
+                        memory.deallocate(capacity: 1024 * 1024)
+                        completion()
+                    }
+                    .async()
+                    .build()
+            )
+            .testCase(
+                TestCase.Builder()
+                    .worker { context, completion in
+                        let queue = DispatchQueue(label: "workerQueue")
+                        queue.async {
+                            let startInterval = Date()
+                            while Date().timeIntervalSince(startInterval) < 4 {}
+                            print(Date())
+                        }
                         Thread.sleep(forTimeInterval: 5)
                         completion()
                     }
