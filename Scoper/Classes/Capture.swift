@@ -19,63 +19,57 @@ protocol CaptureProtocol {
 }
 
 class Capture: CaptureProtocol {
+    private struct Constants {
+        static let targetFrameRate: Double = 120 // Consider iPad Pro with ProMotion feature
+        static let frameRateInterval: TimeInterval = 1
+    }
     private class SystemInfo: NSObject {
         private(set) var displayLink: CADisplayLink!
         private(set) var sysInfoThread: Thread!
-        private(set) var numberOfProcessors: Int = 1
+        private(set) var numberOfProcessors: Int!
+        private(set) var processId: pid_t!
+        
+        private(set) var frameTimestamps: [Double] = []
+        fileprivate var frameRate: Double {
+            return Double(frameTimestamps.count - 1) / ((frameTimestamps.last ?? 0) - (frameTimestamps.first ?? 0))
+        }
+        fileprivate var lowestFrameRate: Double = Constants.targetFrameRate
+        
         typealias proc_pid_rusage_type = @convention(c) (pid_t, Int32, UnsafeMutablePointer<rusage_info_current>) -> kern_return_t
         private(set) var proc_pid_rusage = unsafeBitCast(dlsym(UnsafeMutableRawPointer(bitPattern: -3), "proc_pid_rusage"),
                                                          to: proc_pid_rusage_type.self) // -3 for RTLD_SELF
         override init() {
             super.init()
-            var processorInfo: processor_info_array_t?
-            var processorMsgCount: mach_msg_type_number_t = 0
-            var processorCount: natural_t = 0
-            let err = host_processor_info(mach_host_self(),
-                                          PROCESSOR_CPU_LOAD_INFO,
-                                          &processorCount,
-                                          &processorInfo,
-                                          &processorMsgCount)
-            guard err == KERN_SUCCESS else { return }
-            defer {
-                if let processorInfo = processorInfo {
-                    vm_deallocate(mach_host_self(), vm_address_t(UnsafePointer(processorInfo).pointee), vm_size_t(processorMsgCount))
-                }
-            }
-            numberOfProcessors = Int(processorCount)
+            numberOfProcessors = ProcessInfo.processInfo.activeProcessorCount
+            processId = ProcessInfo.processInfo.processIdentifier
             displayLink = CADisplayLink(target: self, selector: #selector(frame(link:)))
             sysInfoThread = Thread.init(target: self, selector: #selector(threadEntryPoint), object: nil)
             sysInfoThread.start()
-            one_mb_write()
-            test_rusage()
-            print("test DONE")
         }
         @objc func frame(link: CADisplayLink) {
-            print(link.timestamp)
+            frameTimestamps.append(link.timestamp)
+            if link.timestamp - frameTimestamps.first! > 1 { frameTimestamps.removeFirst() }
+            lowestFrameRate = Swift.min(frameRate, lowestFrameRate)
+        }
+        fileprivate func captureLowestFrameRate() -> Double {
+            defer { lowestFrameRate = Constants.targetFrameRate }
+            return lowestFrameRate
         }
         @objc func threadEntryPoint() {
             displayLink.add(to: .current,
                             forMode: .defaultRunLoopMode)
             RunLoop.current.run()
         }
-        func test_rusage() {
-            var info = rusage_info_current()
-            guard KERN_SUCCESS == proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
-                print("error")
-                return
-            }
-            print(info)
-        }
-        func one_mb_write() {
-            let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 1024 * 1024)
-            defer {
-                pointer.deallocate(capacity: 1024 * 1024)
-            }
-            pointer.initialize(to: 42, count: 1024 * 1024)
-            let buffer = UnsafeMutableBufferPointer<Int8>(start: pointer, count: 1024 * 1024)
-            let data = Data(buffer: buffer)
-            try! data.write(to: URL(fileURLWithPath:(NSTemporaryDirectory() as NSString).appendingPathComponent("tmp.dat")))
-        }
+//        func one_mb_write() {
+//            let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 1024 * 1024)
+//            defer {
+//                pointer.deallocate(capacity: 1024 * 1024)
+//            }
+//            pointer.initialize(to: 42, count: 1024 * 1024)
+//            let buffer = UnsafeMutableBufferPointer<Int8>(start: pointer, count: 1024 * 1024)
+//            let data = Data(buffer: buffer)
+//            try! data.write(to: URL(fileURLWithPath:(NSTemporaryDirectory() as NSString).appendingPathComponent("tmp.dat")))
+//        }
         
         static let shared = SystemInfo()
     }
@@ -160,62 +154,25 @@ class Capture: CaptureProtocol {
         results.hostCpuTimeIdle[run] = Double(totalIdleTime) / Double(SystemInfo.shared.numberOfProcessors)
     }
     private func captureMemoryFootprint(_ results: RawResults, run: Int) {
-        var kr: kern_return_t
-        var taskInfoCount = mach_msg_type_number_t(TASK_INFO_MAX)
-        
-        taskInfoCount = mach_msg_type_number_t(TASK_INFO_MAX)
-        var tInfo = [integer_t](repeating: 0, count: Int(taskInfoCount))
-        
-        kr = task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), &tInfo, &taskInfoCount)
-        guard kr == KERN_SUCCESS else { return }
-        defer {
-            vm_deallocate(mach_host_self(), vm_address_t(UnsafePointer(tInfo).pointee), vm_size_t(taskInfoCount))
+        var info = rusage_info_current()
+        guard KERN_SUCCESS == SystemInfo.shared.proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
+            return
         }
-        let taskVmInfo = task_vm_info(taskInfo: tInfo)
-        print(taskVmInfo)
+        results.memoryUsagePhys[run] = info.ri_phys_footprint
+        results.memoryUsagePhysMax[run] = info.ri_lifetime_max_phys_footprint
+        results.memoryUsageResident[run] = info.ri_resident_size
     }
     private func captureDiskUsage(_ results: RawResults, run: Int) {
-        var err: kern_return_t
-        var threadList: thread_act_array_t? = UnsafeMutablePointer(mutating: [thread_act_t]())
-        var threadCount: mach_msg_type_number_t = 0
-        defer {
-            if let threadList = threadList {
-                vm_deallocate(mach_task_self_, vm_address_t(UnsafePointer(threadList).pointee), vm_size_t(threadCount))
-            }
+        var info = rusage_info_current()
+        guard KERN_SUCCESS == SystemInfo.shared.proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
+            return
         }
-        
-        err = task_threads(mach_task_self_, &threadList, &threadCount)
-        guard err == KERN_SUCCESS else { return }
-        
-        var totalDiskReads: UInt64 = 0
-        var totalDiskWrites: UInt64 = 0
-        var totalDiskReadBytes: UInt64 = 0
-        var totalDiskWrittenBytes: UInt64 = 0
-        
-        if let threadList = threadList {
-            (0..<threadCount).map { Int($0) } .forEach { thread in
-                var threadInfoCount = mach_msg_type_number_t(THREAD_INFO_MAX)
-                var threadInfo = [integer_t](repeating: 0, count: Int(threadInfoCount))
-                err = thread_info(threadList[thread], thread_flavor_t(IO_NUM_PRIORITIES), &threadInfo, &threadInfoCount)
-                guard err == KERN_SUCCESS else { return }
-                
-                let ioStatInfo = io_stat_info(threadInfo: threadInfo)
-                let diskReads = ioStatInfo.disk_reads
-                totalDiskReads += diskReads.count
-                totalDiskReadBytes += diskReads.size
-//                totalDiskWrites += ioStatInfo.total_io.count - diskReads.count
-//                totalDiskWrittenBytes += ioStatInfo.total_io.size - diskReads.size
-            }
-        }
-        
-        results.diskReadCount[run] = totalDiskReads
-        results.diskWriteCount[run] = totalDiskWrites
-        results.diskReadDataSize[run] = totalDiskReadBytes
-        results.diskWriteDataSize[run] = totalDiskWrittenBytes
-        print(results)
+        results.diskReadBytes[run] = info.ri_diskio_bytesread
+        results.diskWrittenBytes[run] = info.ri_diskio_byteswritten
     }
     private func captureFrameRate(_ results: RawResults, run: Int) {
-        
+        results.frameRate[run] = SystemInfo.shared.frameRate
+        results.lowestFrameRate[run] = SystemInfo.shared.captureLowestFrameRate()
     }
 }
 
@@ -229,20 +186,6 @@ fileprivate extension thread_basic_info {
                   flags: threadInfo[7],
                   suspend_count: threadInfo[8],
                   sleep_time: threadInfo[9])
-    }
-}
-
-fileprivate extension io_stat_info {
-    init(threadInfo: [integer_t]) {
-        let threadInfo64 = unsafeBitCast(threadInfo, to: [UInt64].self)
-        self.init(disk_reads: io_stat_entry(count: threadInfo64[0], size: threadInfo64[1]),
-                  io_priority: (io_stat_entry(count: threadInfo64[2], size: threadInfo64[3]),
-                                io_stat_entry(count: threadInfo64[4], size: threadInfo64[5]),
-                                io_stat_entry(count: threadInfo64[6], size: threadInfo64[7]),
-                                io_stat_entry(count: threadInfo64[8], size: threadInfo64[9])),
-                  paging: io_stat_entry(count: threadInfo64[10], size: threadInfo64[11]),
-                  metadata: io_stat_entry(count: threadInfo64[12], size: threadInfo64[13]),
-                  total_io: io_stat_entry(count: threadInfo64[14], size: threadInfo64[15]))
     }
 }
 

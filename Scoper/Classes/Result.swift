@@ -52,20 +52,12 @@ public struct MemoryFootprint {
         public let stdev: UInt64
     }
     
-    public let memoryUsage: MemoryFootpintSlice
-    public let peakMemoryUsage: MemoryFootpintSlice
+    public let memoryUsagePhys: MemoryFootpintSlice
+    public let memoryUsagePhysMax: MemoryFootpintSlice
+    public let memoryUsageResident: MemoryFootpintSlice
 }
 
 public struct DiskUsage {
-    public struct DiskIOCountSlice: StatisticsSlice {
-        public static let UOM: String = "operations"
-        
-        public let minimum: UInt64
-        public let maximum: UInt64
-        public let median: UInt64
-        public let mean: UInt64
-        public let stdev: UInt64
-    }
     public struct DiskIODataSlice: StatisticsSlice {
         public static let UOM: String = "KB"
         
@@ -76,10 +68,8 @@ public struct DiskUsage {
         public let stdev: UInt64
     }
     
-    public let readCount: DiskIOCountSlice
-    public let writeCount: DiskIOCountSlice
-    public let readDataSize: DiskIODataSlice
-    public let writeDataSize: DiskIODataSlice
+    public let diskReadBytes: DiskIODataSlice
+    public let diskWrittenBytes: DiskIODataSlice
 }
 
 public struct FrameRate {
@@ -94,7 +84,7 @@ public struct FrameRate {
     }
     
     public let frameRate: FrameRateSlice
-    public let peakFrameRate: FrameRateSlice
+    public let lowestFrameRate: FrameRateSlice
 }
 
 public struct Result {
@@ -114,14 +104,13 @@ class RawResults {
     var hostCpuTimeUser: [Double] = []
     var hostCpuTimeSystem: [Double] = []
     var hostCpuTimeIdle: [Double] = []
-    var memoryUsage: [UInt64] = []
-    var peakMemoryUsage: [[UInt64]] = []
-    var diskReadCount: [UInt64] = []
-    var diskWriteCount: [UInt64] = []
-    var diskReadDataSize: [UInt64] = []
-    var diskWriteDataSize: [UInt64] = []
+    var memoryUsagePhys: [UInt64] = []
+    var memoryUsagePhysMax: [UInt64] = []
+    var memoryUsageResident: [UInt64] = []
+    var diskReadBytes: [UInt64] = []
+    var diskWrittenBytes: [UInt64] = []
     var frameRate: [Double] = []
-    var peakFrameRate: [[Double]] = []
+    var lowestFrameRate: [Double] = []
     required init(numberOfRuns: Int) {
         runTime = .init(repeating: 0, count: numberOfRuns)
         cpuTimeUser = .init(repeating: 0, count: numberOfRuns)
@@ -130,14 +119,13 @@ class RawResults {
         hostCpuTimeUser = .init(repeating: 0, count: numberOfRuns)
         hostCpuTimeSystem = .init(repeating: 0, count: numberOfRuns)
         hostCpuTimeIdle = .init(repeating: 0, count: numberOfRuns)
-        memoryUsage = .init(repeating: 0, count: numberOfRuns)
-        peakMemoryUsage = .init(repeating: [], count: numberOfRuns)
-        diskReadCount = .init(repeating: 0, count: numberOfRuns)
-        diskWriteCount = .init(repeating: 0, count: numberOfRuns)
-        diskReadDataSize = .init(repeating: 0, count: numberOfRuns)
-        diskWriteDataSize = .init(repeating: 0, count: numberOfRuns)
+        memoryUsagePhys = .init(repeating: 0, count: numberOfRuns)
+        memoryUsagePhysMax = .init(repeating: 0, count: numberOfRuns)
+        memoryUsageResident = .init(repeating: 0, count: numberOfRuns)
+        diskReadBytes = .init(repeating: 0, count: numberOfRuns)
+        diskWrittenBytes = .init(repeating: 0, count: numberOfRuns)
         frameRate = .init(repeating: 0, count: numberOfRuns)
-        peakFrameRate = .init(repeating: [], count: numberOfRuns)
+        lowestFrameRate = .init(repeating: 0, count: numberOfRuns)
     }
 }
 
@@ -150,14 +138,20 @@ extension Result {
         let hostCpuTimeUserArray = endMeasurements.hostCpuTimeUser.diff(from: startMeasurements.hostCpuTimeUser)
         let hostCpuTimeSystemArray = endMeasurements.hostCpuTimeSystem.diff(from: startMeasurements.hostCpuTimeSystem)
         let hostCpuTimeIdleArray = endMeasurements.hostCpuTimeIdle.diff(from: startMeasurements.hostCpuTimeIdle)
-        let memoryUsageArray = endMeasurements.memoryUsage.diff(from: startMeasurements.memoryUsage)
-        let peakMemoryUsageArray = endMeasurements.peakMemoryUsage.map { $0.maximum() ?? 0 }.diff(from: startMeasurements.peakMemoryUsage.map { $0.maximum() ?? 0 } )
-        let diskReadCountArray = endMeasurements.diskReadCount.diff(from: startMeasurements.diskReadCount)
-        let diskWriteCountArray = endMeasurements.diskWriteCount.diff(from: startMeasurements.diskWriteCount)
-        let diskReadDataSizeArray = endMeasurements.diskReadDataSize.diff(from: startMeasurements.diskReadDataSize)
-        let diskWriteDataSizeArray = endMeasurements.diskWriteDataSize.diff(from: startMeasurements.diskWriteDataSize)
-        let frameRateArray = endMeasurements.frameRate.diff(from: startMeasurements.frameRate)
-        let peakFrameRateArray = endMeasurements.peakFrameRate.map { $0.minimum() ?? 0 }.diff(from: startMeasurements.peakFrameRate.map { $0.minimum() ?? 0 } )
+        let memoryUsagePhysArray = endMeasurements.memoryUsagePhys.diff(from: startMeasurements.memoryUsagePhys)
+        /*
+         In the next line we do intentional subtraction from memoryUsagePhys and not memoryUsagePhysMax, it's not a typo
+         */
+        let memoryUsagePhysMaxArray = endMeasurements.memoryUsagePhysMax.diff(from: startMeasurements.memoryUsagePhys)
+        let memoryUsageResidentArray = endMeasurements.memoryUsageResident.diff(from: startMeasurements.memoryUsageResident)
+        let diskReadBytesArray = endMeasurements.diskReadBytes.diff(from: startMeasurements.diskReadBytes)
+        let diskWrittenBytesArray = endMeasurements.diskWrittenBytes.diff(from: startMeasurements.diskWrittenBytes)
+        /*
+         Frame rate is not diffable entity
+         */
+        let frameRateArray = endMeasurements.frameRate
+        let lowestFrameRateArray = endMeasurements.lowestFrameRate
+        
         runTime = RunTime(minimum: runTimeArray.minimum() ?? 0,
                           maximum: runTimeArray.maximum() ?? 0,
                           median: runTimeArray.median ?? 0,
@@ -193,46 +187,41 @@ extension Result {
                                                              median: hostCpuTimeIdleArray.median ?? 0,
                                                              mean: hostCpuTimeIdleArray.mean,
                                                              stdev: hostCpuTimeIdleArray.stdev))
-        memoryFootprint = MemoryFootprint(memoryUsage: MemoryFootprint.MemoryFootpintSlice(minimum: memoryUsageArray.minimum() ?? 0,
-                                                                                           maximum: memoryUsageArray.maximum() ?? 0,
-                                                                                           median: memoryUsageArray.median ?? 0,
-                                                                                           mean: memoryUsageArray.mean,
-                                                                                           stdev: memoryUsageArray.stdev),
-                                          peakMemoryUsage: MemoryFootprint.MemoryFootpintSlice(minimum: peakMemoryUsageArray.minimum() ?? 0,
-                                                                                               maximum: peakMemoryUsageArray.maximum() ?? 0,
-                                                                                               median: peakMemoryUsageArray.median ?? 0,
-                                                                                               mean: peakMemoryUsageArray.mean,
-                                                                                               stdev: peakMemoryUsageArray.stdev))
-        diskUsage = DiskUsage(readCount: DiskUsage.DiskIOCountSlice(minimum: diskReadCountArray.minimum() ?? 0,
-                                                                    maximum: diskReadCountArray.maximum() ?? 0,
-                                                                    median: diskReadCountArray.median ?? 0,
-                                                                    mean: diskReadCountArray.mean,
-                                                                    stdev: diskReadCountArray.stdev),
-                              writeCount: DiskUsage.DiskIOCountSlice(minimum: diskWriteCountArray.minimum() ?? 0,
-                                                                     maximum: diskWriteCountArray.maximum() ?? 0,
-                                                                     median: diskWriteCountArray.median ?? 0,
-                                                                     mean: diskWriteCountArray.mean,
-                                                                     stdev: diskWriteCountArray.stdev),
-                              readDataSize: DiskUsage.DiskIODataSlice(minimum: diskReadDataSizeArray.minimum() ?? 0,
-                                                                      maximum: diskReadDataSizeArray.maximum() ?? 0,
-                                                                      median: diskReadDataSizeArray.median ?? 0,
-                                                                      mean: diskReadDataSizeArray.mean,
-                                                                      stdev: diskReadDataSizeArray.stdev),
-                              writeDataSize: DiskUsage.DiskIODataSlice(minimum: diskWriteDataSizeArray.minimum() ?? 0,
-                                                                       maximum: diskWriteDataSizeArray.maximum() ?? 0,
-                                                                       median: diskWriteDataSizeArray.median ?? 0,
-                                                                       mean: diskWriteDataSizeArray.mean,
-                                                                       stdev: diskWriteDataSizeArray.stdev))
+        memoryFootprint = MemoryFootprint(memoryUsagePhys: MemoryFootprint.MemoryFootpintSlice(minimum: memoryUsagePhysArray.minimum() ?? 0,
+                                                                                           maximum: memoryUsagePhysArray.maximum() ?? 0,
+                                                                                           median: memoryUsagePhysArray.median ?? 0,
+                                                                                           mean: memoryUsagePhysArray.mean,
+                                                                                           stdev: memoryUsagePhysArray.stdev),
+                                          memoryUsagePhysMax: MemoryFootprint.MemoryFootpintSlice(minimum: memoryUsagePhysMaxArray.minimum() ?? 0,
+                                                                                               maximum: memoryUsagePhysMaxArray.maximum() ?? 0,
+                                                                                               median: memoryUsagePhysMaxArray.median ?? 0,
+                                                                                               mean: memoryUsagePhysMaxArray.mean,
+                                                                                               stdev: memoryUsagePhysMaxArray.stdev),
+                                          memoryUsageResident: MemoryFootprint.MemoryFootpintSlice(minimum: memoryUsageResidentArray.minimum() ?? 0,
+                                                                                               maximum: memoryUsageResidentArray.maximum() ?? 0,
+                                                                                               median: memoryUsageResidentArray.median ?? 0,
+                                                                                               mean: memoryUsageResidentArray.mean,
+                                                                                               stdev: memoryUsageResidentArray.stdev))
+        diskUsage = DiskUsage(diskReadBytes: DiskUsage.DiskIODataSlice(minimum: diskReadBytesArray.minimum() ?? 0,
+                                                                      maximum: diskReadBytesArray.maximum() ?? 0,
+                                                                      median: diskReadBytesArray.median ?? 0,
+                                                                      mean: diskReadBytesArray.mean,
+                                                                      stdev: diskReadBytesArray.stdev),
+                              diskWrittenBytes: DiskUsage.DiskIODataSlice(minimum: diskWrittenBytesArray.minimum() ?? 0,
+                                                                       maximum: diskWrittenBytesArray.maximum() ?? 0,
+                                                                       median: diskWrittenBytesArray.median ?? 0,
+                                                                       mean: diskWrittenBytesArray.mean,
+                                                                       stdev: diskWrittenBytesArray.stdev))
         frameRate = FrameRate(frameRate: FrameRate.FrameRateSlice(minimum: frameRateArray.minimum() ?? 0,
                                                                     maximum: frameRateArray.maximum() ?? 0,
                                                                     median: frameRateArray.median ?? 0,
                                                                     mean: frameRateArray.mean,
                                                                     stdev: frameRateArray.stdev),
-                              peakFrameRate: FrameRate.FrameRateSlice(minimum: peakFrameRateArray.minimum() ?? 0,
-                                                                        maximum: peakFrameRateArray.maximum() ?? 0,
-                                                                        median: peakFrameRateArray.median ?? 0,
-                                                                        mean: peakFrameRateArray.mean,
-                                                                        stdev: peakFrameRateArray.stdev))
+                              lowestFrameRate: FrameRate.FrameRateSlice(minimum: lowestFrameRateArray.minimum() ?? 0,
+                                                                        maximum: lowestFrameRateArray.maximum() ?? 0,
+                                                                        median: lowestFrameRateArray.median ?? 0,
+                                                                        mean: lowestFrameRateArray.mean,
+                                                                        stdev: lowestFrameRateArray.stdev))
     }
 }
 
@@ -245,12 +234,19 @@ extension Array where Element: Comparable {
     }
 }
 
-extension Array where Element: Numeric {
-    func diff(from: [Element]) -> [Element] {
+extension Array where Element: Numeric & Comparable {
+    func diff(from: [Element], isSigned: Bool = false) -> [Element] {
         let minCount = Swift.min(count, from.count)
         return (0..<minCount).map { index -> Element in
+            if !isSigned && self[index] < from[index] { return 0 }
             return self[index] - from[index]
         }
+    }
+}
+
+extension Array where Element: SignedNumeric & Comparable {
+    func diff(from: [Element]) -> [Element] {
+        return diff(from: from, isSigned: true)
     }
 }
 
@@ -281,7 +277,7 @@ extension Array where Element == UInt64 {
     var stdev: Element {
         let meanValue = mean
         let quadSum = reduce(0) { result, element -> Element in
-            let diff = element - meanValue
+            let diff = (element < meanValue) ? (meanValue - element) : (element - meanValue)
             return result + diff * diff
         }
         return UInt64(sqrt(Double(quadSum / UInt64(count))))
