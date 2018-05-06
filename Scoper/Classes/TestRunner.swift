@@ -44,7 +44,7 @@ public final class TestRunner {
     }
     
     private func run(_ scope: ScopeProtocol, completion: @escaping Completion) {
-        scope.run(completion: completion)
+        scope.run(isNested: false, completion: completion)
     }
     
     private func tick() {

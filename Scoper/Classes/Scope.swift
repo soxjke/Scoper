@@ -6,7 +6,7 @@
 //
 
 protocol ScopeProtocol {
-    func run(completion: @escaping TestRunner.Completion)
+    func run(isNested: Bool, completion: @escaping TestRunner.Completion)
 }
 
 public class Scope<ContextKeyType: CustomStringConvertible>: ScopeProtocol {
@@ -77,8 +77,9 @@ public class Scope<ContextKeyType: CustomStringConvertible>: ScopeProtocol {
     // MARK - Variables definitions
     var variables: Variables
     var capture: CaptureProtocol = Capture()
+    var logger: Logger = defaultLogger
     lazy var scopeResult: ScopeResult = ScopeResult(name: self.variables.name)
-    let context = Context<ContextKeyType>()
+    var context = Context<ContextKeyType>()
     fileprivate let dispatchQueue = DispatchQueue(label: "Scoper.Scope",
                                                   qos: .utility)
     
@@ -88,50 +89,61 @@ public class Scope<ContextKeyType: CustomStringConvertible>: ScopeProtocol {
 }
 
 extension Scope {
-    func run(completion: @escaping TestRunner.Completion) {
-        dispatchQueue.async {
+    func run(isNested: Bool = false, completion: @escaping TestRunner.Completion) {
+        let mainClosure: () -> Void = {
             var timedOut: Bool = false
+            
+            self.reportScopeStart(options: self.variables.options)
             self.variables.before?(self.context)
+            
             self.variables.testCases.forEach { testCase in
                 guard !timedOut else { return }
-                let semaphore = DispatchSemaphore(value: 0)
-                let startResults = RawResults(numberOfRuns: testCase.variables.numberOfRuns)
-                let endResults = RawResults(numberOfRuns: testCase.variables.numberOfRuns)
-                (0..<testCase.variables.numberOfRuns).forEach { (run) in
-                    guard !timedOut else { return }
-                    self.variables.beforeEach?(self.context)
-                    let internalComplete: TestCase.CompletionCallback = {
-                        guard !timedOut else { return }
-                        self.capture.capture(endResults, run: run, options: self.variables.options)
-                        semaphore.signal()
-                    }
-                    testCase.variables.entryPointQueue.async {
-                        self.capture.capture(startResults, run: run, options: self.variables.options)
-                        if testCase.variables.async {
-                            testCase.variables.worker?(self.context, internalComplete)
-                        }
-                        else {
-                            testCase.variables.worker?(self.context, {})
-                            internalComplete()
-                        }
-                    }
-                    self.variables.afterEach?(self.context)
-                    let result = semaphore.wait(timeout: DispatchTime.now() + testCase.variables.timeout)
-                    if result == .timedOut {
-                        timedOut = true
-                        self.reportTimeout(testCase: testCase, run: run, options: self.variables.options)
-                    }
-                }
-                let testResult = Result(startMeasurements: startResults, endMeasurements: endResults)
-                self.scopeResult.append(testResult: testResult, for: testCase.variables.name)
+                self.scopeResult.append(testResult: testCase.run(timedOut: &timedOut,
+                                                                 options: self.variables.options,
+                                                                 beforeEach: self.variables.beforeEach,
+                                                                 afterEach: self.variables.afterEach,
+                                                                 logger: self.logger,
+                                                                 capture: self.capture,
+                                                                 context: self.context),
+                                        for: testCase.variables.name)
             }
+            
+            self.variables.scopes.forEach { nestedScope in
+                self.reportNestedScopeStart(scope: nestedScope, options: self.variables.options)
+                /*
+                    Merge options, share context with the nested scope
+                */
+                nestedScope.variables.set(options: nestedScope.variables.options.union(self.variables.options))
+                nestedScope.context = self.context
+                nestedScope.run(isNested: true) { nestedScopeResult in
+                    self.scopeResult.append(scopeResult: nestedScopeResult, for: nestedScope.variables.name)
+                }
+                self.reportNestedScopeComplete(scope: nestedScope, options: self.variables.options)
+            }
+            
             self.variables.after?(self.context)
+            self.reportScopeComplete(options: self.variables.options)
+            
             completion(self.scopeResult)
         }
-    }
-    
-    private func reportTimeout(testCase: TestCase<ContextKeyType>, run: Int, options: TestOptions) {
+        
+        return isNested ? mainClosure() : dispatchQueue.async(execute: mainClosure)
     }
 }
 
 public typealias DefaultScope = Scope<String>
+
+extension Scope {
+    func reportScopeStart(options: TestOptions) {
+        if options.contains(.logProgress) { logger("Scope \"" + variables.name + "\" started") }
+    }
+    func reportScopeComplete(options: TestOptions) {
+        if options.contains(.logProgress) { logger("Scope \"" + variables.name + "\" completed") }
+    }
+    func reportNestedScopeStart(scope: Scope<ContextKeyType>, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Nested scope \"" + scope.variables.name + "\" is about to start") }
+    }
+    func reportNestedScopeComplete(scope: Scope<ContextKeyType>, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Nested scope \"" + scope.variables.name + "\" recently completed") }
+    }
+}

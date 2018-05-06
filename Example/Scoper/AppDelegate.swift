@@ -17,8 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.'
         let scope = DefaultScope.Builder()
+            .name("Root test scope")
             .testCase(
                 TestCase.Builder()
+                    .name("8Mb Memory Consumption, 5s wait")
                     .worker { context, completion in
                         let memory = UnsafeMutablePointer<UInt64>.allocate(capacity: 1024 * 1024)
                         memory.initialize(to: 42, count: 1024 * 1024)
@@ -31,18 +33,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             )
             .testCase(
                 TestCase.Builder()
+                    .name("Single core CPU load for 4s")
                     .worker { context, completion in
                         let queue = DispatchQueue(label: "workerQueue")
                         queue.async {
                             let startInterval = Date()
                             while Date().timeIntervalSince(startInterval) < 4 {}
-                            print(Date())
                         }
                         Thread.sleep(forTimeInterval: 5)
                         completion()
                     }
                     .async()
                     .build()
+            )
+            .nestedScope(
+                Scope.Builder()
+                .name("First nested scope")
+                .testCase(
+                    TestCase.Builder()
+                        .name("Test case of first nested scope")
+                        .worker { context, completion in
+                            Thread.sleep(forTimeInterval: 1)
+                            completion()
+                        }
+                        .async()
+                        .build()
+                )
+                .nestedScope(
+                    Scope.Builder()
+                    .name("Second nested scope")
+                    .testCase(
+                        TestCase.Builder()
+                            .name("Test case of second nested scope")
+                            .worker { context, completion in
+                                Thread.sleep(forTimeInterval: 2)
+                                completion()
+                            }
+                            .async()
+                            .build()
+                    )
+                    .build()
+                )
+                .build()
             )
             .options(.complete)
             .build()
@@ -73,7 +105,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
 }
-

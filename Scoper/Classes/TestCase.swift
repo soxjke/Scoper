@@ -66,3 +66,96 @@ public class TestCase<ContextKeyType: CustomStringConvertible> {
         variables = builder.variables
     }
 }
+
+extension TestCase {
+    fileprivate func runWorker( timedOut: inout Bool,
+                                semaphore: DispatchSemaphore,
+                                options: TestOptions,
+                                run: Int,
+                                capture: CaptureProtocol,
+                                context: Context<ContextKeyType>,
+                                startResults: RawResults,
+                                endResults: RawResults) {
+        let internalComplete: CompletionCallback = { [timedOut] in
+            guard !timedOut else { return }
+            capture.capture(endResults, run: run, options: options)
+            semaphore.signal()
+        }
+        variables.entryPointQueue.async {
+            capture.capture(startResults, run: run, options: options)
+            if self.variables.async {
+                self.variables.worker?(context, internalComplete)
+            }
+            else {
+                self.variables.worker?(context, {})
+                internalComplete()
+            }
+        }
+    }
+    
+    internal func run(timedOut: inout Bool,
+                      options: TestOptions,
+                      beforeEach: Scope<ContextKeyType>.Worker?,
+                      afterEach: Scope<ContextKeyType>.Worker?,
+                      logger: Logger,
+                      capture: CaptureProtocol,
+                      context: Context<ContextKeyType>) -> Result {
+        let semaphore = DispatchSemaphore(value: 0)
+        
+        reportTestCaseStart(logger, options: options)
+        
+        let startResults = RawResults(numberOfRuns: variables.numberOfRuns)
+        let endResults = RawResults(numberOfRuns: variables.numberOfRuns)
+        (0..<variables.numberOfRuns).forEach { (run) in
+            guard !timedOut else { return }
+            
+            reportTestCaseRunStart(logger, run: run, options: options)
+            
+            beforeEach?(context)
+            
+            runWorker(timedOut: &timedOut,
+                      semaphore: semaphore,
+                      options: options,
+                      run: run,
+                      capture: capture,
+                      context: context,
+                      startResults: startResults,
+                      endResults: endResults)
+            
+            afterEach?(context)
+            
+            let result = semaphore.wait(timeout: DispatchTime.now() + variables.timeout)
+            if result == .timedOut {
+                timedOut = true
+                reportTimeout(logger, run: run)
+            }
+            
+            reportTestCaseRunComplete(logger, run: run, options: options)
+        }
+        
+        reportTestCaseComplete(logger, options: options)
+        
+        return Result(startMeasurements: startResults, endMeasurements: endResults)
+    }
+}
+
+extension TestCase {
+    func reportTimeout(_ logger: Logger, run: Int) {
+        logger("Test case \"" + variables.name + "\" timed out on run #" + String(describing: run) +
+            " after waiting for " + String(describing:variables.timeout) + " seconds. Terminating.")
+    }
+    func reportTestCaseStart(_ logger: Logger, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\" started") }
+    }
+    func reportTestCaseRunStart(_ logger: Logger, run: Int, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\", run " +
+            String(describing: run + 1) + " out of " + String(describing: variables.numberOfRuns) + " started") }
+    }
+    func reportTestCaseRunComplete(_ logger: Logger, run: Int, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\", run " +
+            String(describing: run + 1) + " out of " + String(describing: variables.numberOfRuns) + " completed") }
+    }
+    func reportTestCaseComplete(_ logger: Logger, options: TestOptions) {
+        if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\" completed") }
+    }
+}
