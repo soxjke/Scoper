@@ -139,6 +139,8 @@ extension TestCase {
     }
 }
 
+public typealias DefaultTestCase = TestCase<String>
+
 extension TestCase {
     func reportTimeout(_ logger: Logger, run: Int) {
         logger("Test case \"" + variables.name + "\" timed out on run #" + String(describing: run) +

@@ -12,7 +12,7 @@ typealias Logger = (String) -> Void
 func defaultLogger(message: String) {
     let date = Date()
     queue.async {
-        asyncLogger(date: date, message: message)
+        Swift.print(formatMessage(date: date, message: message))
     }
 }
 
@@ -23,6 +23,6 @@ private let formatter: DateFormatter = {
     return df
 }()
 
-private func asyncLogger(date: Date, message: String) {
-    Swift.print("[" + formatter.string(from: date) + "] Scoper: " + message)
+func formatMessage(date: Date, message: String) -> String {
+    return "[" + formatter.string(from: date) + "] Scoper: " + message
 }

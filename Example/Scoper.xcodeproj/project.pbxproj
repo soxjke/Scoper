@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B0A4FCD20A2397D00761E36 /* TestCaseSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FCC20A2397D00761E36 /* TestCaseSpec.swift */; };
+		4B0A4FCF20A23C6500761E36 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FCE20A23C6500761E36 /* TestUtils.swift */; };
+		4B0A4FD120A248FA00761E36 /* ResultSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD020A248FA00761E36 /* ResultSpec.swift */; };
+		4B0A4FD320A2493F00761E36 /* TestOptionsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD220A2493F00761E36 /* TestOptionsSpec.swift */; };
+		4B0A4FD520A2495E00761E36 /* TestRunnerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD420A2495E00761E36 /* TestRunnerSpec.swift */; };
 		4B4C613A207A26DB00415DA2 /* ScopeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4C6138207A242100415DA2 /* ScopeSpec.swift */; };
 		4B4C613C207A751700415DA2 /* CallSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4C613B207A751700415DA2 /* CallSpy.swift */; };
 		4B9B05CA2079EB1300BC2FFE /* ContextSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9B05C92079EB1300BC2FFE /* ContextSpec.swift */; };
@@ -33,6 +38,11 @@
 /* Begin PBXFileReference section */
 		21B127AB21E365B4617DE331 /* Pods-Scoper_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scoper_Example.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Scoper_Example/Pods-Scoper_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		3CD5AB975C264C77E6298DDB /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		4B0A4FCC20A2397D00761E36 /* TestCaseSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestCaseSpec.swift; sourceTree = "<group>"; };
+		4B0A4FCE20A23C6500761E36 /* TestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		4B0A4FD020A248FA00761E36 /* ResultSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSpec.swift; sourceTree = "<group>"; };
+		4B0A4FD220A2493F00761E36 /* TestOptionsSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestOptionsSpec.swift; sourceTree = "<group>"; };
+		4B0A4FD420A2495E00761E36 /* TestRunnerSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRunnerSpec.swift; sourceTree = "<group>"; };
 		4B4C6138207A242100415DA2 /* ScopeSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeSpec.swift; sourceTree = "<group>"; };
 		4B4C613B207A751700415DA2 /* CallSpy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallSpy.swift; sourceTree = "<group>"; };
 		4B9B05C92079EB1300BC2FFE /* ContextSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextSpec.swift; sourceTree = "<group>"; };
@@ -147,7 +157,12 @@
 			children = (
 				4B4C613B207A751700415DA2 /* CallSpy.swift */,
 				4B9B05C92079EB1300BC2FFE /* ContextSpec.swift */,
+				4B0A4FD020A248FA00761E36 /* ResultSpec.swift */,
 				4B4C6138207A242100415DA2 /* ScopeSpec.swift */,
+				4B0A4FCC20A2397D00761E36 /* TestCaseSpec.swift */,
+				4B0A4FD220A2493F00761E36 /* TestOptionsSpec.swift */,
+				4B0A4FD420A2495E00761E36 /* TestRunnerSpec.swift */,
+				4B0A4FCE20A23C6500761E36 /* TestUtils.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
 			path = Tests;
@@ -400,9 +415,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B0A4FCD20A2397D00761E36 /* TestCaseSpec.swift in Sources */,
+				4B0A4FD320A2493F00761E36 /* TestOptionsSpec.swift in Sources */,
 				4B9B05CA2079EB1300BC2FFE /* ContextSpec.swift in Sources */,
 				4B4C613C207A751700415DA2 /* CallSpy.swift in Sources */,
+				4B0A4FD520A2495E00761E36 /* TestRunnerSpec.swift in Sources */,
+				4B0A4FCF20A23C6500761E36 /* TestUtils.swift in Sources */,
 				4B4C613A207A26DB00415DA2 /* ScopeSpec.swift in Sources */,
+				4B0A4FD120A248FA00761E36 /* ResultSpec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
