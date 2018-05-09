@@ -43,7 +43,7 @@ public struct CPUTime {
 
 public struct MemoryFootprint {
     public struct MemoryFootpintSlice: StatisticsSlice {
-        public static let UOM: String = "KB"
+        public static let UOM: String = "bytes"
         
         public let minimum: UInt64
         public let maximum: UInt64
@@ -55,11 +55,12 @@ public struct MemoryFootprint {
     public let memoryUsagePhys: MemoryFootpintSlice
     public let memoryUsagePhysMax: MemoryFootpintSlice
     public let memoryUsageResident: MemoryFootpintSlice
+    public let memoryUsageResidentMax: MemoryFootpintSlice
 }
 
 public struct DiskUsage {
     public struct DiskIODataSlice: StatisticsSlice {
-        public static let UOM: String = "KB"
+        public static let UOM: String = "bytes"
         
         public let minimum: UInt64
         public let maximum: UInt64
@@ -88,12 +89,12 @@ public struct FrameRate {
 }
 
 public struct Result {
-    public let runTime: RunTime?
-    public let cpuTime: CPUTime?
-    public let hostCpuTime: CPUTime?
-    public let memoryFootprint: MemoryFootprint?
-    public let diskUsage: DiskUsage?
-    public let frameRate: FrameRate?
+    public let runTime: RunTime
+    public let cpuTime: CPUTime
+    public let hostCpuTime: CPUTime
+    public let memoryFootprint: MemoryFootprint
+    public let diskUsage: DiskUsage
+    public let frameRate: FrameRate
 }
 
 class RawResults {
@@ -107,6 +108,7 @@ class RawResults {
     var memoryUsagePhys: [UInt64] = []
     var memoryUsagePhysMax: [UInt64] = []
     var memoryUsageResident: [UInt64] = []
+    var memoryUsageResidentMax: [UInt64] = []
     var diskReadBytes: [UInt64] = []
     var diskWrittenBytes: [UInt64] = []
     var frameRate: [Double] = []
@@ -122,6 +124,7 @@ class RawResults {
         memoryUsagePhys = .init(repeating: 0, count: numberOfRuns)
         memoryUsagePhysMax = .init(repeating: 0, count: numberOfRuns)
         memoryUsageResident = .init(repeating: 0, count: numberOfRuns)
+        memoryUsageResidentMax = .init(repeating: 0, count: numberOfRuns)
         diskReadBytes = .init(repeating: 0, count: numberOfRuns)
         diskWrittenBytes = .init(repeating: 0, count: numberOfRuns)
         frameRate = .init(repeating: 0, count: numberOfRuns)
@@ -140,10 +143,14 @@ extension Result {
         let hostCpuTimeIdleArray = endMeasurements.hostCpuTimeIdle.diff(from: startMeasurements.hostCpuTimeIdle)
         let memoryUsagePhysArray = endMeasurements.memoryUsagePhys.diff(from: startMeasurements.memoryUsagePhys)
         /*
-         In the next line we do intentional subtraction from memoryUsagePhys and not memoryUsagePhysMax, it's not a typo
+         In the next line we do intentional subtraction of memoryUsagePhys and not memoryUsagePhysMax, it's not a typo
          */
         let memoryUsagePhysMaxArray = endMeasurements.memoryUsagePhysMax.diff(from: startMeasurements.memoryUsagePhys)
         let memoryUsageResidentArray = endMeasurements.memoryUsageResident.diff(from: startMeasurements.memoryUsageResident)
+        /*
+         In the next line we do intentional subtraction of memoryUsageResident and not memoryUsageResidentMax, it's not a typo
+         */
+        let memoryUsageResidentMaxArray = endMeasurements.memoryUsageResidentMax.diff(from: startMeasurements.memoryUsageResident)
         let diskReadBytesArray = endMeasurements.diskReadBytes.diff(from: startMeasurements.diskReadBytes)
         let diskWrittenBytesArray = endMeasurements.diskWrittenBytes.diff(from: startMeasurements.diskWrittenBytes)
         /*
@@ -201,7 +208,12 @@ extension Result {
                                                                                                maximum: memoryUsageResidentArray.maximum() ?? 0,
                                                                                                median: memoryUsageResidentArray.median ?? 0,
                                                                                                mean: memoryUsageResidentArray.mean,
-                                                                                               stdev: memoryUsageResidentArray.stdev))
+                                                                                               stdev: memoryUsageResidentArray.stdev),
+                                          memoryUsageResidentMax: MemoryFootprint.MemoryFootpintSlice(minimum: memoryUsageResidentMaxArray.minimum() ?? 0,
+                                                                                                   maximum: memoryUsageResidentMaxArray.maximum() ?? 0,
+                                                                                                   median: memoryUsageResidentMaxArray.median ?? 0,
+                                                                                                   mean: memoryUsageResidentMaxArray.mean,
+                                                                                                   stdev: memoryUsageResidentMaxArray.stdev))
         diskUsage = DiskUsage(diskReadBytes: DiskUsage.DiskIODataSlice(minimum: diskReadBytesArray.minimum() ?? 0,
                                                                       maximum: diskReadBytesArray.maximum() ?? 0,
                                                                       median: diskReadBytesArray.median ?? 0,
@@ -222,6 +234,17 @@ extension Result {
                                                                         median: lowestFrameRateArray.median ?? 0,
                                                                         mean: lowestFrameRateArray.mean,
                                                                         stdev: lowestFrameRateArray.stdev))
+    }
+    
+    func description(options: TestOptions) -> String {
+        var result: String = ""
+        if options.contains(.runTime) { result.append("Run time stats:\n" + runTime.description) }
+        if options.contains(.cpuTime) { result.append("Task CPU time stats:\n" + cpuTime.description) }
+        if options.contains(.hostCpuTime) { result.append("Host CPU time stats:\n" + hostCpuTime.description) }
+        if options.contains(.memoryFootprint) { result.append("Memory usage stats:\n" + memoryFootprint.description) }
+        if options.contains(.diskUsage) { result.append("Disk usage stats:\n" + diskUsage.description) }
+        if options.contains(.frameRate) { result.append("Frame rate stats:\n" + frameRate.description) }
+        return result
     }
 }
 
@@ -281,5 +304,49 @@ extension Array where Element == UInt64 {
             return result + diff * diff
         }
         return UInt64(sqrt(Double(quadSum / UInt64(count))))
+    }
+}
+
+extension StatisticsSlice {
+    var statsDescription: String {
+        let UOM = Self.UOM
+        return "{mean: \(mean)\(UOM), median: \(median)\(UOM), min: \(minimum)\(UOM), max: \(maximum)\(UOM), stdev: \(stdev)\(UOM)}"
+    }
+}
+
+extension RunTime: CustomStringConvertible {
+    public var description: String {
+        return "Run time: \(statsDescription)\n"
+    }
+}
+
+extension CPUTime: CustomStringConvertible {
+    public var description: String {
+        return "CPU time user: \(userTime.statsDescription)\n" +
+                "CPU time system: \(systemTime.statsDescription)\n" +
+                "CPU time idle: \(idleTime.statsDescription)\n"
+    }
+}
+
+extension MemoryFootprint: CustomStringConvertible {
+    public var description: String {
+        return "Physical memory usage: \(memoryUsagePhys.statsDescription)\n" +
+                "Peak physical memory usage: \(memoryUsagePhysMax.statsDescription)\n" +
+                "Resident memory usage: \(memoryUsageResident.statsDescription)\n" +
+                "Peak resident memory usage: \(memoryUsageResidentMax.statsDescription)\n"
+    }
+}
+
+extension DiskUsage: CustomStringConvertible {
+    public var description: String {
+        return "Disk reads: \(diskReadBytes.statsDescription)\n" +
+                "Disk writes: \(diskWrittenBytes.statsDescription)\n"
+    }
+}
+
+extension FrameRate: CustomStringConvertible {
+    public var description: String {
+        return "Frame rate: \(frameRate.statsDescription)\n" +
+                "Lowest frame rate: \(lowestFrameRate.statsDescription)\n"
     }
 }

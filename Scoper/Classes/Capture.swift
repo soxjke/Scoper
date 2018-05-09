@@ -22,6 +22,7 @@ class Capture: CaptureProtocol {
     private struct Constants {
         static let targetFrameRate: Double = 120 // Consider iPad Pro with ProMotion feature
         static let frameRateInterval: TimeInterval = 1
+        static let initialPeakMemory : UInt64 = 0
     }
     private class SystemInfo: NSObject {
         private(set) var displayLink: CADisplayLink!
@@ -34,6 +35,8 @@ class Capture: CaptureProtocol {
             return Double(frameTimestamps.count - 1) / ((frameTimestamps.last ?? 0) - (frameTimestamps.first ?? 0))
         }
         fileprivate var lowestFrameRate: Double = Constants.targetFrameRate
+        fileprivate var peakPhysicalMemory: UInt64 = Constants.initialPeakMemory
+        fileprivate var peakResidentMemory: UInt64 = Constants.initialPeakMemory
         
         typealias proc_pid_rusage_type = @convention(c) (pid_t, Int32, UnsafeMutablePointer<rusage_info_current>) -> kern_return_t
         private(set) var proc_pid_rusage = unsafeBitCast(dlsym(UnsafeMutableRawPointer(bitPattern: -3), "proc_pid_rusage"),
@@ -50,26 +53,32 @@ class Capture: CaptureProtocol {
             frameTimestamps.append(link.timestamp)
             if link.timestamp - frameTimestamps.first! > 1 { frameTimestamps.removeFirst() }
             lowestFrameRate = Swift.min(frameRate, lowestFrameRate)
+            captureMemory()
+        }
+        private func captureMemory() {
+            var info = rusage_info_current()
+            guard KERN_SUCCESS == SystemInfo.shared.proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
+                return
+            }
+            if info.ri_phys_footprint > peakPhysicalMemory { peakPhysicalMemory = info.ri_phys_footprint }
+            if info.ri_resident_size > peakResidentMemory { peakResidentMemory = info.ri_resident_size }
         }
         fileprivate func captureLowestFrameRate() -> Double {
             defer { lowestFrameRate = Constants.targetFrameRate }
             return lowestFrameRate
+        }
+        fileprivate func captureMemoryPeaks() -> (physical: UInt64, resident: UInt64) {
+            defer {
+                peakPhysicalMemory = Constants.initialPeakMemory
+                peakResidentMemory = Constants.initialPeakMemory
+            }
+            return (physical: peakPhysicalMemory, resident: peakResidentMemory)
         }
         @objc func threadEntryPoint() {
             displayLink.add(to: .current,
                             forMode: .defaultRunLoopMode)
             RunLoop.current.run()
         }
-//        func one_mb_write() {
-//            let pointer = UnsafeMutablePointer<Int8>.allocate(capacity: 1024 * 1024)
-//            defer {
-//                pointer.deallocate(capacity: 1024 * 1024)
-//            }
-//            pointer.initialize(to: 42, count: 1024 * 1024)
-//            let buffer = UnsafeMutableBufferPointer<Int8>(start: pointer, count: 1024 * 1024)
-//            let data = Data(buffer: buffer)
-//            try! data.write(to: URL(fileURLWithPath:(NSTemporaryDirectory() as NSString).appendingPathComponent("tmp.dat")))
-//        }
         
         static let shared = SystemInfo()
     }
@@ -86,38 +95,16 @@ class Capture: CaptureProtocol {
         results.runTime[run] = Double(DispatchTime.now().uptimeNanoseconds) / Double(NSEC_PER_SEC)
     }
     private func captureCpuTime(_ results: RawResults, run: Int) {
-        var err: kern_return_t
-        var threadList: thread_act_array_t? = UnsafeMutablePointer(mutating: [thread_act_t]())
-        var threadCount: mach_msg_type_number_t = 0
-        defer {
-            if let threadList = threadList {
-                vm_deallocate(mach_task_self_, vm_address_t(UnsafePointer(threadList).pointee), vm_size_t(threadCount))
-            }
+        var info = rusage_info_current()
+        guard KERN_SUCCESS == SystemInfo.shared.proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
+            return
         }
-        
-        err = task_threads(mach_task_self_, &threadList, &threadCount)
-        guard err == KERN_SUCCESS else { return }
-
-        var totalSystemTime: Double = 0
-        var totalUserTime: Double = 0
         let totalIdleTimeUnadjusted: Double = Double(DispatchTime.now().uptimeNanoseconds) / Double(NSEC_PER_SEC);
-
-        if let threadList = threadList {
-            (0..<threadCount).map { Int($0) } .forEach { thread in
-                var threadInfoCount = mach_msg_type_number_t(THREAD_INFO_MAX)
-                var threadInfo = [integer_t](repeating: 0, count: Int(threadInfoCount))
-                err = thread_info(threadList[thread], thread_flavor_t(THREAD_BASIC_INFO), &threadInfo, &threadInfoCount)
-                guard err == KERN_SUCCESS else { return }
-                
-                let threadBasicInfo = thread_basic_info(threadInfo: threadInfo)
-                totalSystemTime += threadBasicInfo.system_time.doubleValue
-                totalUserTime += threadBasicInfo.user_time.doubleValue
-            }
-        }
-        
+        let totalSystemTime: Double = Double(info.ri_system_time) / Double(NSEC_PER_SEC)
+        let totalUserTime: Double = Double(info.ri_user_time) / Double(NSEC_PER_SEC)
         results.cpuTimeSystem[run] = totalSystemTime / Double(SystemInfo.shared.numberOfProcessors)
         results.cpuTimeUser[run] = totalUserTime / Double(SystemInfo.shared.numberOfProcessors)
-        results.cpuTimeIdle[run] = (totalIdleTimeUnadjusted - (totalSystemTime + totalUserTime)) / Double(SystemInfo.shared.numberOfProcessors)
+        results.cpuTimeIdle[run] = (totalIdleTimeUnadjusted - (totalSystemTime + totalUserTime) / Double(SystemInfo.shared.numberOfProcessors))
     }
     
     private func captureHostCpuTime(_ results: RawResults, run: Int) {
@@ -159,8 +146,10 @@ class Capture: CaptureProtocol {
             return
         }
         results.memoryUsagePhys[run] = info.ri_phys_footprint
-        results.memoryUsagePhysMax[run] = info.ri_lifetime_max_phys_footprint
         results.memoryUsageResident[run] = info.ri_resident_size
+        let peak = SystemInfo.shared.captureMemoryPeaks()
+        results.memoryUsagePhysMax[run] = peak.physical
+        results.memoryUsageResidentMax[run] = peak.resident
     }
     private func captureDiskUsage(_ results: RawResults, run: Int) {
         var info = rusage_info_current()

@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         let memory = UnsafeMutablePointer<UInt64>.allocate(capacity: 1024 * 1024)
                         memory.initialize(to: 42, count: 1024 * 1024)
                         Thread.sleep(forTimeInterval: 5)
+                        memory.deinitialize(count: 1024 * 1024)
                         memory.deallocate(capacity: 1024 * 1024)
                         completion()
                     }
@@ -40,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             let startInterval = Date()
                             while Date().timeIntervalSince(startInterval) < 4 {}
                         }
-                        Thread.sleep(forTimeInterval: 5)
+                        Thread.sleep(forTimeInterval: 4)
                         completion()
                     }
                     .async()

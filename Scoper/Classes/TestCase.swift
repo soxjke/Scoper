@@ -133,9 +133,9 @@ extension TestCase {
             reportTestCaseRunComplete(logger, run: run, options: options)
         }
         
-        reportTestCaseComplete(logger, options: options)
-        
-        return Result(startMeasurements: startResults, endMeasurements: endResults)
+        let result = Result(startMeasurements: startResults, endMeasurements: endResults)
+        reportTestCaseComplete(logger, result: result, options: options)
+        return result
     }
 }
 
@@ -157,7 +157,8 @@ extension TestCase {
         if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\", run " +
             String(describing: run + 1) + " out of " + String(describing: variables.numberOfRuns) + " completed") }
     }
-    func reportTestCaseComplete(_ logger: Logger, options: TestOptions) {
+    func reportTestCaseComplete(_ logger: Logger, result: Result, options: TestOptions) {
         if options.contains(.logProgress) { logger("Test case \"" + variables.name + "\" completed") }
+        if options.contains(.logResults) { logger("Test case \"" + variables.name + "\" results:\n" + result.description(options: options)) }
     }
 }

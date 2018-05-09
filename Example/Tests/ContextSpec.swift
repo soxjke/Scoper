@@ -44,7 +44,7 @@ class ContextSpec: QuickSpec {
                 it("should put, then get") {
                     stringContext.put(value: Constants.helloWorldString, for: Constants.stringKey1)
                     let result: String? = stringContext.getValue(for: Constants.stringKey1)
-                    expect(result).to(equal(Constants.helloWorldString))
+                    expect(result) == Constants.helloWorldString
                 }
                 it("should get nil without put") {
                     let result: String? = stringContext.getValue(for: Constants.stringKey1)
@@ -54,22 +54,22 @@ class ContextSpec: QuickSpec {
                     stringContext.put(value: Constants.helloWorldString, for: Constants.stringKey1)
                     stringContext.put(value: Constants.helloWorldString2, for: Constants.stringKey1)
                     let result: String? = stringContext.getValue(for: Constants.stringKey1)
-                    expect(result).to(equal(Constants.helloWorldString2))
+                    expect(result) == Constants.helloWorldString2
                 }
                 it("should separate values by keys") {
                     stringContext.put(value: Constants.helloWorldString, for: Constants.stringKey1)
                     stringContext.put(value: Constants.helloWorldString2, for: Constants.stringKey2)
                     let result1: String? = stringContext.getValue(for: Constants.stringKey1)
                     let result2: String? = stringContext.getValue(for: Constants.stringKey2)
-                    expect(result1).to(equal(Constants.helloWorldString))
-                    expect(result2).to(equal(Constants.helloWorldString2))
+                    expect(result1) == Constants.helloWorldString
+                    expect(result2) == Constants.helloWorldString2
                 }
                 it("should perform type inference on get") {
                     stringContext.put(value: Constants.oneNumber, for: Constants.stringKey1)
                     let resultString: String? = stringContext.getValue(for: Constants.stringKey1)
                     let resultInt: Int? = stringContext.getValue(for: Constants.stringKey1)
                     expect(resultString).to(beNil())
-                    expect(resultInt).to(equal(Constants.oneNumber))
+                    expect(resultInt) == Constants.oneNumber
                 }
                 it("should support type conversion through Any on get") {
                     stringContext.put(value: Constants.oneNumber, for: Constants.stringKey1)
@@ -77,27 +77,27 @@ class ContextSpec: QuickSpec {
                     let resultString = result as? String
                     let resultInt = result as? Int
                     expect(resultString).to(beNil())
-                    expect(resultInt).to(equal(Constants.oneNumber))
+                    expect(resultInt) == Constants.oneNumber
                 }
                 it("should support C struct types") {
                     let rect = CGRect(x: Constants.oneNumber, y: Constants.oneNumber,
                                       width: Constants.oneNumber, height: Constants.oneNumber)
                     stringContext.put(value: rect, for: Constants.stringKey1)
                     let result: CGRect? = stringContext.getValue(for: Constants.stringKey1)
-                    expect(result).to(equal(rect))
+                    expect(result) == rect
                 }
                 it("should support bridgeable types") {
                     let array = [Constants.helloWorldString, Constants.helloWorldString2]
                     stringContext.put(value: array, for: Constants.stringKey1)
                     let result: NSArray? = stringContext.getValue(for: Constants.stringKey1)
-                    expect(result).to(equal(array as NSArray))
+                    expect(result) == array as NSArray
                 }
             }
             context("working with string context") {
                 it("should put, then get") {
                     customContext.put(value: Constants.helloWorldString, for: .testEnumCase1)
                     let result: String? = customContext.getValue(for: .testEnumCase1)
-                    expect(result).to(equal(Constants.helloWorldString))
+                    expect(result) == Constants.helloWorldString
                 }
                 it("should get nil without put") {
                     let result: String? = customContext.getValue(for: .testEnumCase1)
@@ -107,22 +107,22 @@ class ContextSpec: QuickSpec {
                     customContext.put(value: Constants.helloWorldString, for: .testEnumCase1)
                     customContext.put(value: Constants.helloWorldString2, for: .testEnumCase1)
                     let result: String? = customContext.getValue(for: .testEnumCase1)
-                    expect(result).to(equal(Constants.helloWorldString2))
+                    expect(result) == Constants.helloWorldString2
                 }
                 it("should separate values by keys") {
                     customContext.put(value: Constants.helloWorldString, for: .testEnumCase1)
                     customContext.put(value: Constants.helloWorldString2, for: .testEnumCase2)
                     let result1: String? = customContext.getValue(for: .testEnumCase1)
                     let result2: String? = customContext.getValue(for: .testEnumCase2)
-                    expect(result1).to(equal(Constants.helloWorldString))
-                    expect(result2).to(equal(Constants.helloWorldString2))
+                    expect(result1) == Constants.helloWorldString
+                    expect(result2) == Constants.helloWorldString2
                 }
                 it("should perform type inference on get") {
                     customContext.put(value: Constants.oneNumber, for: .testEnumCase1)
                     let resultString: String? = customContext.getValue(for: .testEnumCase1)
                     let resultInt: Int? = customContext.getValue(for: .testEnumCase1)
                     expect(resultString).to(beNil())
-                    expect(resultInt).to(equal(Constants.oneNumber))
+                    expect(resultInt) == Constants.oneNumber
                 }
                 it("should support type conversion through Any on get") {
                     customContext.put(value: Constants.oneNumber, for: .testEnumCase1)
@@ -130,20 +130,20 @@ class ContextSpec: QuickSpec {
                     let resultString = result as? String
                     let resultInt = result as? Int
                     expect(resultString).to(beNil())
-                    expect(resultInt).to(equal(Constants.oneNumber))
+                    expect(resultInt) == Constants.oneNumber
                 }
                 it("should support C struct types") {
                     let rect = CGRect(x: Constants.oneNumber, y: Constants.oneNumber,
                                       width: Constants.oneNumber, height: Constants.oneNumber)
                     customContext.put(value: rect, for: .testEnumCase1)
                     let result: CGRect? = customContext.getValue(for: .testEnumCase1)
-                    expect(result).to(equal(rect))
+                    expect(result) == rect
                 }
                 it("should support bridgeable types") {
                     let array = [Constants.helloWorldString, Constants.helloWorldString2]
                     customContext.put(value: array, for: .testEnumCase1)
                     let result: NSArray? = customContext.getValue(for: .testEnumCase1)
-                    expect(result).to(equal(array as NSArray))
+                    expect(result) == array as NSArray
                 }
             }
         }

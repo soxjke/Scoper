@@ -12,7 +12,26 @@ typealias Logger = (String) -> Void
 func defaultLogger(message: String) {
     let date = Date()
     queue.async {
-        Swift.print(formatMessage(date: date, message: message))
+        let message = formatMessage(date: date, message: message)
+        guard message.count > 1000 else {
+            NSLog(message)
+            return
+        }
+        // Since iOS 10 Unified logging strips messages at around 1Kb of size
+        message.split(separator: "\n").map { String($0) }.reduce([]) { arrayOfMessages, line -> [String] in
+            if var currentMessage = arrayOfMessages.last {
+                currentMessage.append("\n" + line)
+                if currentMessage.count < 1000 {
+                    return arrayOfMessages.dropLast() + [currentMessage]
+                }
+                else {
+                    return arrayOfMessages + [line]
+                }
+            }
+            else {
+                return [line]
+            }
+        }.forEach { NSLog($0) }
     }
 }
 

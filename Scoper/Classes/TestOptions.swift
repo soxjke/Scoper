@@ -18,7 +18,6 @@ public struct TestOptions: OptionSet {
     
     public static let logResults = TestOptions(rawValue: 1 << 16)
     public static let logProgress = TestOptions(rawValue: 1 << 17)
-    public static let detailedStats = TestOptions(rawValue: 1 << 18)
     
     public static let complete = TestOptions(rawValue: Int64.max)
     public static let basic: TestOptions = [.runTime, .logResults, .logProgress]
