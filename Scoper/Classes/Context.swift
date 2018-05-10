@@ -13,7 +13,7 @@ public class Context<KeyType: CustomStringConvertible> {
     public func getValue<T>(`for` key: KeyType) -> T? {
         return innerDictionary[key.description] as? T
     }
-    subscript<T>(key: KeyType) -> T? {
+    public subscript<T>(key: KeyType) -> T? {
         get {
             return getValue(for: key)
         }

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>classNames</key>
+	<dict>
+		<key>Algorithms_UnitTests</key>
+		<dict>
+			<key>testPerformanceExample()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_HighWaterMarkForHeapAllocations</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>4410.1</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:28:28 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_HighWaterMarkForVMAllocations</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>102.4</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:28:28 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_PersistentHeapAllocations</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_PersistentHeapAllocationsNodes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_PersistentVMAllocations</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>102.4</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:28:28 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_RunTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.36096</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_SystemTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.0020918</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_TemporaryHeapAllocationsKilobytes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>22052</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_TotalHeapAllocationsKilobytes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>20475</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_TransientHeapAllocationsKilobytes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>22052</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_TransientHeapAllocationsNodes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>3.6288e+05</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_TransientVMAllocationsKilobytes</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_UserTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.35887</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.3624</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>May 10, 2018 at 3:17:16 PM</string>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

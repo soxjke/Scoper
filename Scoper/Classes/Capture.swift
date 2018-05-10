@@ -6,7 +6,7 @@
 //
 
 import Darwin
-#if (os(iOS) || os(tvOS) || os(watchOS))
+#if (os(iOS) || os(tvOS))
     import UIKit
 #else
     #if os(OSX)
@@ -21,11 +21,18 @@ protocol CaptureProtocol {
 class Capture: CaptureProtocol {
     private struct Constants {
         static let targetFrameRate: Double = 120 // Consider iPad Pro with ProMotion feature
+        static let macosTargetCaptureUpdateInterval: TimeInterval = 0.1
         static let frameRateInterval: TimeInterval = 1
         static let initialPeakMemory : UInt64 = 0
     }
     private class SystemInfo: NSObject {
+#if (os(iOS) || os(tvOS))
         private(set) var displayLink: CADisplayLink!
+#else
+    #if os(OSX)
+        private(set) var timer: Timer!
+    #endif
+#endif
         private(set) var sysInfoThread: Thread!
         private(set) var numberOfProcessors: Int!
         private(set) var processId: pid_t!
@@ -45,16 +52,26 @@ class Capture: CaptureProtocol {
             super.init()
             numberOfProcessors = ProcessInfo.processInfo.activeProcessorCount
             processId = ProcessInfo.processInfo.processIdentifier
+#if (os(iOS) || os(tvOS))
             displayLink = CADisplayLink(target: self, selector: #selector(frame(link:)))
+#endif
             sysInfoThread = Thread.init(target: self, selector: #selector(threadEntryPoint), object: nil)
             sysInfoThread.start()
         }
+#if (os(iOS) || os(tvOS))
         @objc func frame(link: CADisplayLink) {
             frameTimestamps.append(link.timestamp)
             if link.timestamp - frameTimestamps.first! > 1 { frameTimestamps.removeFirst() }
             lowestFrameRate = Swift.min(frameRate, lowestFrameRate)
             captureMemory()
         }
+#else
+    #if os(OSX)
+        @objc func tick(timer: Timer) {
+            captureMemory()
+        }
+    #endif
+#endif
         private func captureMemory() {
             var info = rusage_info_current()
             guard KERN_SUCCESS == SystemInfo.shared.proc_pid_rusage(ProcessInfo.processInfo.processIdentifier, RUSAGE_INFO_CURRENT, &info) else {
@@ -75,8 +92,18 @@ class Capture: CaptureProtocol {
             return (physical: peakPhysicalMemory, resident: peakResidentMemory)
         }
         @objc func threadEntryPoint() {
+#if (os(iOS) || os(tvOS))
             displayLink.add(to: .current,
                             forMode: .defaultRunLoopMode)
+#else
+    #if os(OSX)
+        timer = Timer.scheduledTimer(timeInterval: Constants.macosTargetCaptureUpdateInterval,
+                                     target: self,
+                                     selector: #selector(tick(timer:)),
+                                     userInfo: nil,
+                                     repeats: true)
+    #endif
+#endif
             RunLoop.current.run()
         }
         

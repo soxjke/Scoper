@@ -12,6 +12,7 @@
 		4B0A4FD120A248FA00761E36 /* ResultSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD020A248FA00761E36 /* ResultSpec.swift */; };
 		4B0A4FD320A2493F00761E36 /* TestOptionsSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD220A2493F00761E36 /* TestOptionsSpec.swift */; };
 		4B0A4FD520A2495E00761E36 /* TestRunnerSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A4FD420A2495E00761E36 /* TestRunnerSpec.swift */; };
+		4B0A502720A4D68900761E36 /* Scoper_ExampleTestsSecond.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0A502620A4D68900761E36 /* Scoper_ExampleTestsSecond.swift */; };
 		4B4C613A207A26DB00415DA2 /* ScopeSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4C6138207A242100415DA2 /* ScopeSpec.swift */; };
 		4B4C613C207A751700415DA2 /* CallSpy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B4C613B207A751700415DA2 /* CallSpy.swift */; };
 		4B9B05CA2079EB1300BC2FFE /* ContextSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9B05C92079EB1300BC2FFE /* ContextSpec.swift */; };
@@ -26,6 +27,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4B0A502920A4D68900761E36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 607FACCF1AFB9204008FA782;
+			remoteInfo = Scoper_Example;
+		};
 		4B9B05CD2079F01900BC2FFE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 607FACC81AFB9204008FA782 /* Project object */;
@@ -43,6 +51,9 @@
 		4B0A4FD020A248FA00761E36 /* ResultSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultSpec.swift; sourceTree = "<group>"; };
 		4B0A4FD220A2493F00761E36 /* TestOptionsSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestOptionsSpec.swift; sourceTree = "<group>"; };
 		4B0A4FD420A2495E00761E36 /* TestRunnerSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRunnerSpec.swift; sourceTree = "<group>"; };
+		4B0A502420A4D68800761E36 /* Scoper_ExampleTestsSecond.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Scoper_ExampleTestsSecond.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B0A502620A4D68900761E36 /* Scoper_ExampleTestsSecond.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scoper_ExampleTestsSecond.swift; sourceTree = "<group>"; };
+		4B0A502820A4D68900761E36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4B4C6138207A242100415DA2 /* ScopeSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScopeSpec.swift; sourceTree = "<group>"; };
 		4B4C613B207A751700415DA2 /* CallSpy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CallSpy.swift; sourceTree = "<group>"; };
 		4B9B05C92079EB1300BC2FFE /* ContextSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextSpec.swift; sourceTree = "<group>"; };
@@ -67,6 +78,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4B0A502120A4D68800761E36 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		607FACCD1AFB9204008FA782 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -109,12 +127,22 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		4B0A502520A4D68900761E36 /* Scoper_ExampleTestsSecond */ = {
+			isa = PBXGroup;
+			children = (
+				4B0A502620A4D68900761E36 /* Scoper_ExampleTestsSecond.swift */,
+				4B0A502820A4D68900761E36 /* Info.plist */,
+			);
+			path = Scoper_ExampleTestsSecond;
+			sourceTree = "<group>";
+		};
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for Scoper */,
 				607FACE81AFB9204008FA782 /* Tests */,
+				4B0A502520A4D68900761E36 /* Scoper_ExampleTestsSecond */,
 				607FACD11AFB9204008FA782 /* Products */,
 				1D437A306257DD88014101B2 /* Pods */,
 				050B3A1DBB6F14054149CB6F /* Frameworks */,
@@ -126,6 +154,7 @@
 			children = (
 				607FACD01AFB9204008FA782 /* Scoper_Example.app */,
 				607FACE51AFB9204008FA782 /* Scoper_Tests.xctest */,
+				4B0A502420A4D68800761E36 /* Scoper_ExampleTestsSecond.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -189,6 +218,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		4B0A502320A4D68800761E36 /* Scoper_ExampleTestsSecond */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B0A502D20A4D68900761E36 /* Build configuration list for PBXNativeTarget "Scoper_ExampleTestsSecond" */;
+			buildPhases = (
+				4B0A502020A4D68800761E36 /* Sources */,
+				4B0A502120A4D68800761E36 /* Frameworks */,
+				4B0A502220A4D68800761E36 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4B0A502A20A4D68900761E36 /* PBXTargetDependency */,
+			);
+			name = Scoper_ExampleTestsSecond;
+			productName = Scoper_ExampleTestsSecond;
+			productReference = 4B0A502420A4D68800761E36 /* Scoper_ExampleTestsSecond.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		607FACCF1AFB9204008FA782 /* Scoper_Example */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 607FACEF1AFB9204008FA782 /* Build configuration list for PBXNativeTarget "Scoper_Example" */;
@@ -236,10 +283,15 @@
 		607FACC81AFB9204008FA782 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0830;
+				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = CocoaPods;
 				TargetAttributes = {
+					4B0A502320A4D68800761E36 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 607FACCF1AFB9204008FA782;
+					};
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = ZR2M67958M;
@@ -268,11 +320,19 @@
 			targets = (
 				607FACCF1AFB9204008FA782 /* Scoper_Example */,
 				607FACE41AFB9204008FA782 /* Scoper_Tests */,
+				4B0A502320A4D68800761E36 /* Scoper_ExampleTestsSecond */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4B0A502220A4D68800761E36 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		607FACCE1AFB9204008FA782 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -402,6 +462,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4B0A502020A4D68800761E36 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B0A502720A4D68900761E36 /* Scoper_ExampleTestsSecond.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		607FACCC1AFB9204008FA782 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -429,6 +497,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4B0A502A20A4D68900761E36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 607FACCF1AFB9204008FA782 /* Scoper_Example */;
+			targetProxy = 4B0A502920A4D68900761E36 /* PBXContainerItemProxy */;
+		};
 		4B9B05CE2079F01900BC2FFE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 607FACCF1AFB9204008FA782 /* Scoper_Example */;
@@ -456,6 +529,54 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		4B0A502B20A4D68900761E36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Scoper_ExampleTestsSecond/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "software.sigma.Scoper-ExampleTestsSecond";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scoper_Example.app/Scoper_Example";
+			};
+			name = Debug;
+		};
+		4B0A502C20A4D68900761E36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = Scoper_ExampleTestsSecond/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "software.sigma.Scoper-ExampleTestsSecond";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Scoper_Example.app/Scoper_Example";
+			};
+			name = Release;
+		};
 		607FACED1AFB9204008FA782 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -630,6 +751,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4B0A502D20A4D68900761E36 /* Build configuration list for PBXNativeTarget "Scoper_ExampleTestsSecond" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B0A502B20A4D68900761E36 /* Debug */,
+				4B0A502C20A4D68900761E36 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		607FACCB1AFB9204008FA782 /* Build configuration list for PBXProject "Scoper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

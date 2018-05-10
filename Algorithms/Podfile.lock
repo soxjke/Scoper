@@ -1,0 +1,16 @@
+PODS:
+  - Scoper (0.1.0)
+
+DEPENDENCIES:
+  - Scoper (from `../`)
+
+EXTERNAL SOURCES:
+  Scoper:
+    :path: ../
+
+SPEC CHECKSUMS:
+  Scoper: e50b5028d8f9d8556ac858255881be9608d616db
+
+PODFILE CHECKSUM: c9c166afe03d9e74bc4f9ee8beac1ce4c2d012c5
+
+COCOAPODS: 1.4.0
