@@ -31,6 +31,7 @@ description of performance testing suite. Unlike XCTest works on physical iOS de
 
   s.ios.deployment_target = '8.0'
   s.osx.deployment_target = '10.10'
+  s.swift_version = '4.0'
 
   s.source_files = 'Scoper/Classes/**/*'
   
