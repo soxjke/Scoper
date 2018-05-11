@@ -39,7 +39,10 @@ public final class TestRunner {
     private func scheduleRun(_ scope: ScopeProtocol, completion: @escaping Completion) {
         executingScope = scope
         dispatchQueue.async {
-            self.run(scope, completion: completion)
+            self.run(scope) { result in
+                self.executingScope = nil
+                completion(result)
+            }
         }
     }
     

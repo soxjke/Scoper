@@ -53,16 +53,6 @@
                ReferencedContainer = "container:Scoper.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4B0A502320A4D68800761E36"
-               BuildableName = "Scoper_ExampleTestsSecond.xctest"
-               BlueprintName = "Scoper_ExampleTestsSecond"
-               ReferencedContainer = "container:Scoper.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

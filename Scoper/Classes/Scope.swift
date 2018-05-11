@@ -72,6 +72,12 @@ public class Scope<ContextKeyType: CustomStringConvertible>: ScopeProtocol {
         public func testCase(_ testCase: TestCase<ContextKeyType>) -> Self {
             variables.append(testCase: testCase); return self
         }
+        public func testCase(_ worker: @escaping TestCase<ContextKeyType>.Worker) -> Self {
+            variables.append(testCase: TestCase<ContextKeyType>.Builder().worker(worker).build()); return self
+        }
+        public func testCase(name: String, worker: @escaping TestCase<ContextKeyType>.Worker) -> Self {
+            variables.append(testCase: TestCase<ContextKeyType>.Builder().name(name).worker(worker).build()); return self
+        }
     }
     
     // MARK - Variables definitions

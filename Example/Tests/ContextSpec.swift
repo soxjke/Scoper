@@ -56,6 +56,14 @@ class ContextSpec: QuickSpec {
                     let result: String? = stringContext.getValue(for: Constants.stringKey1)
                     expect(result) == Constants.helloWorldString2
                 }
+                it("should remove") {
+                    stringContext.put(value: Constants.helloWorldString, for: Constants.stringKey1)
+                    var result: String? = stringContext.getValue(for: Constants.stringKey1)
+                    expect(result) == Constants.helloWorldString
+                    stringContext.removeValue(for: Constants.stringKey1)
+                    result = stringContext.getValue(for: Constants.stringKey1)
+                    expect(result).to(beNil())
+                }
                 it("should separate values by keys") {
                     stringContext.put(value: Constants.helloWorldString, for: Constants.stringKey1)
                     stringContext.put(value: Constants.helloWorldString2, for: Constants.stringKey2)
@@ -108,6 +116,14 @@ class ContextSpec: QuickSpec {
                     customContext.put(value: Constants.helloWorldString2, for: .testEnumCase1)
                     let result: String? = customContext.getValue(for: .testEnumCase1)
                     expect(result) == Constants.helloWorldString2
+                }
+                it("should remove") {
+                    customContext.put(value: Constants.helloWorldString, for: .testEnumCase1)
+                    var result: String? = customContext.getValue(for: .testEnumCase1)
+                    expect(result) == Constants.helloWorldString
+                    customContext.removeValue(for: .testEnumCase1)
+                    result = customContext.getValue(for: .testEnumCase1)
+                    expect(result).to(beNil())
                 }
                 it("should separate values by keys") {
                     customContext.put(value: Constants.helloWorldString, for: .testEnumCase1)

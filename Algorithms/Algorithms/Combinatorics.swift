@@ -227,19 +227,19 @@ extension Array where Element: Comparable {
             return false
         }
         
-        // L2: Find last j such that self[j] <= self[j+1]. Terminate if no such j
+        // L2: Find last j such that self[j] < self[j+1]. Terminate if no such j
         // exists.
         var j = count - 2
-        while j >= 0 && self[j] > self[j+1] {
+        while j >= 0 && self[j] >= self[j+1] {
             j -= 1
         }
         if j == -1 {
             return false
         }
         
-        // L3: Find last l such that self[j] <= self[l], then exchange elements j and l:
+        // L3: Find last l such that self[j] < self[l], then exchange elements j and l:
         var l = count - 1
-        while self[j] > self[l] {
+        while self[j] >= self[l] {
             l -= 1
         }
         self.swapAt(j, l)
@@ -262,15 +262,15 @@ extension Array where Element: Comparable {
             return false
         }
         
-        // L2: Find last j such that self[j] <= self[j+1]. Terminate if no such j
+        // L2: Find last j such that self[j] < self[j+1]. Terminate if no such j
         // exists.
         guard let j = indices.reversed().dropFirst()
-            .first(where: { self[$0] <= self[$0 + 1] })
+            .first(where: { self[$0] < self[$0 + 1] })
             else { return false }
         
-        // L3: Find last l such that self[j] <= self[l], then exchange elements j and l:
+        // L3: Find last l such that self[j] < self[l], then exchange elements j and l:
         let l = indices.reversed()
-            .first(where: { self[j] <= self[$0] })!
+            .first(where: { self[j] < self[$0] })!
         swapAt(j, l)
         
         // L4: Reverse elements j+1 ... count-1:

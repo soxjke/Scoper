@@ -79,6 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             )
             .options(.complete)
             .build()
+        
         TestRunner.shared.schedule(scope) { scopeResult in
             print(scopeResult)
         }

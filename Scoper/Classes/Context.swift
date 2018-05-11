@@ -13,6 +13,9 @@ public class Context<KeyType: CustomStringConvertible> {
     public func getValue<T>(`for` key: KeyType) -> T? {
         return innerDictionary[key.description] as? T
     }
+    public func removeValue(`for` key: KeyType) {
+        innerDictionary.removeValue(forKey: key.description)
+    }
     public subscript<T>(key: KeyType) -> T? {
         get {
             return getValue(for: key)
