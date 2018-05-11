@@ -28,7 +28,7 @@ Scoper API is designed to be familiar for everybody who tried BDD testing framew
 
 Use Scoper by creating ```Scope``` instances and scheduling them via ```TestRunner```
 
-Basic usage:
+### Basic usage:
 
 ```swift
 let scope = DefaultScope.Builder()
@@ -45,22 +45,39 @@ let scope = DefaultScope.Builder()
 ```Builder``` for ```Scope``` has following methods:
 
 ```name``` - to set human-readable name for scope
+
 ```options``` - to set measurement and logging options for scope, ```TestOptions``` struct
+
 ```before``` - block to execute before the scope
+
 ```beforeEach``` - block to execute before each worker run for each test case
+
 ```after``` - block to execute after the scope
+
 ```afterEach``` - block to execute after each worker run for each test case
+
 ```testCase``` - to append test case
+
 ```nestedScope``` - to add nested scope
+
+### TestCase
 
 Despite there're shorthand methods for creating ```TestCase```, it has it's own functional builder:
 
 ```name``` - to set human-readable name for worker
-```async``` - to set whether worker is expected to work asynchronously. ```completion()``` should be called in worker in this case. Default value is ```false```
+
+```async``` - to set whether worker is expected to work asynchronously. ```completion()``` should be called in worker in this 
+case. Default value is ```false```
+
 ```worker``` - worker block
+
 ```numberOfRuns``` - to set number of runs. Default value is 10
+
 ```timeout``` - to set timeout value for worker. It is measured from calling ```worker``` until call of ```completion```. Default value is 60s
+
 ```entryPointQueue``` - to set entry point queue for worker. Default is ```DispatchQueue.main```
+
+### TestOptions
 
 ```TestOptions``` values:
 
@@ -79,7 +96,7 @@ More usage examples can be found [here](https://github.com/soxjke/Scoper/blob/ma
 
 ## Author
 
-soxjke, soxjke@gmail.com
+Petro Korienev, soxjke@gmail.com
 
 ## License
 
