@@ -28,7 +28,7 @@ Scoper API is designed to be familiar for everybody who tried BDD testing framew
 
 Use Scoper by creating ```Scope``` instances and scheduling them via ```TestRunner```
 
-Basic usage:
+### Basic usage:
 
 ```swift
 let scope = DefaultScope.Builder()
@@ -60,6 +60,8 @@ let scope = DefaultScope.Builder()
 
 ```nestedScope``` - to add nested scope
 
+### TestCase
+
 Despite there're shorthand methods for creating ```TestCase```, it has it's own functional builder:
 
 ```name``` - to set human-readable name for worker
@@ -74,6 +76,8 @@ case. Default value is ```false```
 ```timeout``` - to set timeout value for worker. It is measured from calling ```worker``` until call of ```completion```. Default value is 60s
 
 ```entryPointQueue``` - to set entry point queue for worker. Default is ```DispatchQueue.main```
+
+### TestOptions
 
 ```TestOptions``` values:
 
