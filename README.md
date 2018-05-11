@@ -96,7 +96,7 @@ More usage examples can be found [here](https://github.com/soxjke/Scoper/blob/ma
 
 ## Author
 
-soxjke, soxjke@gmail.com
+Petro Korienev, soxjke@gmail.com
 
 ## License
 
