@@ -122,12 +122,13 @@ extension TestCase {
                       startResults: startResults,
                       endResults: endResults)
             
-            afterEach?(context)
-            
             let result = semaphore.wait(timeout: DispatchTime.now() + variables.timeout)
             if result == .timedOut {
                 timedOut = true
                 reportTimeout(logger, run: run)
+            }
+            else {
+                afterEach?(context)
             }
             
             reportTestCaseRunComplete(logger, run: run, options: options)
